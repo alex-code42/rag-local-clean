@@ -24,13 +24,30 @@ def load_pdf(path):
 
 
 def chunk(text, size=400, overlap=80):
-    words = text.split()
-    chunks = []
+    paragraphs = text.split("\n\n")
 
-    i = 0
-    while i < len(words):
-        chunks.append(" ".join(words[i:i+size]))
-        i += size - overlap
+    chunks = []
+    current = []
+
+    current_len = 0
+
+    for p in paragraphs:
+        p_len = len(p.split())
+
+        if current_len + p_len > size:
+            chunks.append(" ".join(current))
+
+            # Overlap korrekt auf Wörter
+            words = " ".join(current).split()
+            current = words[-overlap:]
+
+            current_len = len(current)
+        else:
+            current.append(p)
+            current_len += p_len
+
+    if current:
+        chunks.append(" ".join(current))
 
     return chunks
 

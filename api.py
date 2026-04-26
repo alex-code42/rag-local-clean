@@ -13,8 +13,7 @@ reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
 
 # DB Client
 db_client = chromadb.PersistentClient(path=DB_PATH)
-collection = db_client.get_collection("docs")
-
+collection = db_client.get_or_create_collection("docs")
 
 class Query(BaseModel):
     question: str
@@ -23,6 +22,8 @@ def get_user_id():
     return "default_user"
 
 def retrieve(query):
+    if "maut" not in query.lower():
+    	query = f"LKW Maut Deutschland {query}"
     q_emb = embedder.encode(query).tolist()
 
     res = collection.query(
@@ -33,23 +34,28 @@ def retrieve(query):
 
     docs = res["documents"][0]
     
+    
+
     print("QUERY:", query)
     print("TOP DOCS:", docs[:2])
    
     pairs = [(query, d) for d in docs]
     scores = reranker.predict(pairs)
-
+    print("SCORES:", scores[:3])
+    print("TOP DOC:", docs[0][:500])
     ranked = sorted(zip(docs, scores), key=lambda x: x[1], reverse=True)
-    
-    threshold = 0.25 if len(query.split()) > 5 else 0.35
 
-    # 🔥 Filter schlechte Treffer raus
+    base_threshold = 0.25
+    query_len_factor = 0.05 if len(query.split()) < 5 else 0
+
+    threshold = base_threshold + (0.05 if len(query.split()) < 5 else -0.02)
+
     ranked = [
     (doc, score) for doc, score in ranked
-    if score > 0.3
+    if score > threshold
     ]
 
-    return ranked[:3]
+    return ranked[:8]
 
 
 def build_answer(query, passages):
