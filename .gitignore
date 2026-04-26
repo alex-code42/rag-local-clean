@@ -1,0 +1,22 @@
+# Virtual Environment
+venv/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# Data / RAG artifacts
+data/
+embeddings/
+vector_db/
+
+# OS files
+.DS_Store
+
+# ML / binaries
+*.dylib
+*.so
