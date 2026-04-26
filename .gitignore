@@ -16,7 +16,13 @@ vector_db/
 
 # OS files
 .DS_Store
-
+db/
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
 # ML / binaries
 *.dylib
 *.so
